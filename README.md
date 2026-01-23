@@ -32,7 +32,7 @@ Admins can view orders **live in real-time**.
 ---
 
 ## 📂 Project Structure
-
+```
 hotel-qr-ordering/
 │
 ├─ src/
@@ -49,7 +49,7 @@ hotel-qr-ordering/
 ├─ package.json
 └─ README.md
 
-
+```
 ---
 
 ## 🚀 Installation & Setup
