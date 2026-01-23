@@ -46,61 +46,64 @@ const Menu = () => {
   );
 
   return (
-    <div style={{ padding: "16px" }}>
-      <h2>Menu</h2>
-      Table No: {tableNumber ? tableNumber : "Not Assigned"}
+    <div className="min-h-screen bg-gray-100 p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Menu</h2>
+      <p className="text-center text-gray-600 mb-6">
+        Table No: <span className="font-semibold">{tableNumber}</span>
+      </p>
 
-      {/* MENU LIST */}
-      {items.map(food => (
-        <div
-          key={food.id}
-          style={{
-            border: "1px solid #ddd",
-            marginBottom: "12px",
-            padding: "12px",
-          }}
-        >
-          <h4>{food.name}</h4>
-          <p>₹{food.price}</p>
-          <p>{food.category}</p>
-          <button onClick={() => addToCart(food)}>
-            Add to Cart
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {items.map(item => (
+          <div
+            key={item.id}
+            className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
+          >
+            <h3 className="text-lg font-semibold">{item.name}</h3>
+            <p className="text-gray-500">{item.category}</p>
+            <p className="font-medium mt-2">₹{item.price}</p>
+
+            <button
+              onClick={() => addToCart(item)}
+              className="mt-3 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800"
+            >
+              Add to Cart
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Cart Summary */}
+      {cart.length > 0 && (
+        <div className="mt-6 bg-white p-4 rounded-xl shadow">
+          <h3 className="text-xl font-semibold mb-3">Cart</h3>
+          <div className="space-y-2">
+            {cart.map(item => (
+              <div key={item.id} className="flex justify-between">
+                <span>{item.name} × {item.qty}</span>
+                <span>₹{item.price * item.qty}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between font-semibold text-lg mt-3">
+            <span>Total:</span>
+            <span>₹{total}</span>
+          </div>
+          <button
+            onClick={() =>
+              navigate("/checkout", {
+                state: {
+                  cart,
+                  total,
+                  tableNumber,
+                },
+              })
+            }
+          >
+            Proceed to Checkout
           </button>
+
         </div>
-      ))}
-
-      {/* CART SECTION */}
-      <hr />
-      <h3>Cart</h3>
-
-      {cart.length === 0 && <p>No items added</p>}
-
-      {cart.map(food => (
-        <div key={food.id}>
-          <p>
-            {food.name} × {food.qty} = ₹{food.price * food.qty}
-          </p>
-        </div>
-      ))}
-
-      <h3>Total: ₹{total}</h3>
-
-      {/* CheckOut SECTION */}
-<button
-  onClick={() =>
-    navigate("/checkout", {
-      state: {
-        cart,
-        total,
-        tableNumber,
-      },
-    })
-  }
->
-  Proceed to Checkout
-</button>
-
-
+      )}
     </div>
   );
 };
