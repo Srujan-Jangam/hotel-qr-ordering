@@ -173,22 +173,11 @@ const OrderStatus = () => {
           </div>
 
           <div className="px-5 py-6">
-            <div className="flex items-center justify-between">
+            <div className="relative flex items-center justify-between">
               {statusSteps.map((step, index) => {
                 const status = getStepStatus(index);
                 return (
                   <div key={step.key} className="flex flex-col items-center flex-1">
-                    {/* Connector Line */}
-                    {index > 0 && (
-                      <div
-                        className={`absolute h-1 w-full -translate-x-1/2 ${
-                          index <= currentStepIndex
-                            ? "bg-amber-500"
-                            : "bg-stone-200"
-                        }`}
-                        style={{ width: "calc(100% - 3rem)" }}
-                      />
-                    )}
 
                     {/* Step Circle */}
                     <div
