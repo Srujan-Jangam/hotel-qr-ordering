@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,      // <-- for fetching orders
+  updateDoc,    // <-- for merging
+  doc           // <-- for referencing specific document
+} from "firebase/firestore";
+
 import { db } from "../firebase";
 
 const Checkout = () => {
@@ -13,6 +21,32 @@ const Checkout = () => {
 
   const [paymentMethod, setPaymentMethod] = useState("counter");
 
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [duplicateOrderId, setDuplicateOrderId] = useState(null);
+  const [mergedCart, setMergedCart] = useState([]);
+  const [mergedTotal, setMergedTotal] = useState(0);
+
+
+  // Helper to compare two carts
+  const isSameCart = (cart1, cart2) => {
+    if (cart1.length !== cart2.length) return false;
+
+    // Compare each item (id + qty)
+    const sorted1 = [...cart1].sort((a, b) => a.id.localeCompare(b.id));
+    const sorted2 = [...cart2].sort((a, b) => a.id.localeCompare(b.id));
+
+    for (let i = 0; i < sorted1.length; i++) {
+      if (
+        sorted1[i].id !== sorted2[i].id ||
+        sorted1[i].qty !== sorted2[i].qty
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+
   const placeOrder = async () => {
     if (isPlacing) return;
     if (!cart || cart.length === 0) return alert("Cart is empty");
@@ -20,7 +54,46 @@ const Checkout = () => {
     setIsPlacing(true);
 
     try {
-      const docRef = await addDoc(collection(db, "orders"), {
+      // 1️⃣ Check for duplicate active orders
+      const ordersRef = collection(db, "orders");
+      const snapshot = await getDocs(ordersRef);
+      const activeOrders = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(o => o.tableNumber === tableNumber && ["pending", "preparing"].includes(o.status));
+
+      const duplicate = activeOrders.find(o => isSameCart(o.items, cart));
+
+      if (duplicate) {
+        // 2️⃣ Prompt user
+        const confirmMerge = window.confirm(
+          "You already have an active order with these items. Do you want to add the new items to your existing order?"
+        );
+
+        if (confirmMerge) {
+          // 3️⃣ Merge items & update total
+          const updatedItems = mergeCarts(duplicate.items, cart);
+          const updatedTotal = updatedItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+          await updateDoc(doc(db, "orders", duplicate.id), {
+            items: updatedItems,
+            total: updatedTotal,
+            statusUpdatedAt: new Date(),
+          });
+          setDuplicateOrderId(duplicate.id);
+          setMergedCart(updatedItems);
+          setMergedTotal(updatedTotal);
+          setShowDuplicateModal(true);
+          setIsPlacing(false);
+          // navigate(`/order/${duplicate.id}`);
+          return; // Stop here
+        } else {
+          setIsPlacing(false);
+          return; // User canceled merge
+        }
+      }
+
+      // 4️⃣ No duplicate: place new order
+      const docRef = await addDoc(ordersRef, {
         tableNumber,
         items: cart,
         total,
@@ -36,6 +109,24 @@ const Checkout = () => {
       alert("Failed to place order");
       setIsPlacing(false);
     }
+  };
+
+  // Merger Carts if orders are same
+  const mergeCarts = (existingItems, newItems) => {
+    const merged = [...existingItems];
+
+    newItems.forEach(newItem => {
+      const index = merged.findIndex(i => i.id === newItem.id);
+      if (index !== -1) {
+        // If item exists, increase quantity
+        merged[index].qty += newItem.qty;
+      } else {
+        // Add new item
+        merged.push(newItem);
+      }
+    });
+
+    return merged;
   };
 
   return (
@@ -146,11 +237,10 @@ const Checkout = () => {
 
           <div className="px-5 py-4 space-y-3">
             <label
-              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                paymentMethod === "counter"
-                  ? "border-amber-400 bg-amber-50"
-                  : "border-stone-200 hover:border-stone-300"
-              }`}
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === "counter"
+                ? "border-amber-400 bg-amber-50"
+                : "border-stone-200 hover:border-stone-300"
+                }`}
             >
               <input
                 type="radio"
@@ -182,11 +272,10 @@ const Checkout = () => {
             </label>
 
             <label
-              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                paymentMethod === "online"
-                  ? "border-amber-400 bg-amber-50"
-                  : "border-stone-200 hover:border-stone-300"
-              }`}
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === "online"
+                ? "border-amber-400 bg-amber-50"
+                : "border-stone-200 hover:border-stone-300"
+                }`}
             >
               <input
                 type="radio"
@@ -338,6 +427,50 @@ const Checkout = () => {
           )}
         </button>
       </div>
+
+      {/* Duplicate Order Modal */}
+      {showDuplicateModal && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl border border-stone-200 shadow-lg w-80 p-6">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">
+              Duplicate Order Detected
+            </h3>
+            <p className="text-sm text-stone-500 mb-4">
+              You already have an active order with these items. Do you want to merge the new items into your existing order?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDuplicateModal(false)}
+                className="px-4 py-2 text-sm font-medium rounded-xl border border-stone-300 bg-stone-50 text-stone-700 hover:bg-stone-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setIsPlacing(true);
+                  try {
+                    await updateDoc(doc(db, "orders", duplicateOrderId), {
+                      items: mergedCart,
+                      total: mergedTotal,
+                      statusUpdatedAt: new Date(),
+                    });
+                    setShowDuplicateModal(false);
+                    navigate(`/order/${duplicateOrderId}`);
+                  } catch (err) {
+                    console.error(err);
+                    alert("Failed to merge order");
+                    setIsPlacing(false);
+                  }
+                }}
+                className="px-4 py-2 text-sm font-medium rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition"
+              >
+                Merge
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
