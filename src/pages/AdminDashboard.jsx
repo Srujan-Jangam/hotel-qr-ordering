@@ -21,7 +21,16 @@ const AdminDashboard = () => {
         return () => unsubscribe();
     }, []);
 
-    const updateStatus = async (orderId, newStatus) => {
+    const updateStatus = async (orderId, newStatus, currentStatus) => {
+
+        // Prevent backward or duplicate updates
+        if (
+            currentStatus === "served" ||
+            (currentStatus === "preparing" && newStatus === "pending")
+        ) {
+            return;
+        }
+
         try {
             await updateDoc(doc(db, "orders", orderId), {
                 status: newStatus,
@@ -63,6 +72,9 @@ const AdminDashboard = () => {
     // Filtered orders based on dropdown selection
     const filteredOrders =
         filter === "all" ? orders : orders.filter((o) => o.status === filter);
+    const activeOrders = orders.filter(
+        (o) => o.status === "pending" || o.status === "preparing"
+    );
 
     return (
         <div className="min-h-screen bg-stone-50">
@@ -98,7 +110,7 @@ const AdminDashboard = () => {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
-                        <span className="text-sm font-medium">{orders.length} Active Orders</span>
+                        <span className="text-sm font-medium">{activeOrders.length} Active Orders</span>
                     </div>
                 </div>
             </header>
@@ -225,11 +237,13 @@ const AdminDashboard = () => {
 
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => updateStatus(order.id, "preparing")}
+                                            disabled={order.status !== "pending"}
+                                            onClick={() => updateStatus(order.id, "preparing", order.status)}
                                             className={`flex-1 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 active:scale-[0.98] ${order.status === "preparing"
                                                 ? "bg-amber-500 text-white"
-                                                : "bg-stone-100 text-stone-700 hover:bg-stone-200"
-                                                }`}
+                                                : "bg-stone-100 text-stone-700 hover:bg-stone-200"}
+                                                ${order.status !== "pending" && "opacity-50 cursor-not-allowed"}
+                                                `}
                                         >
                                             <span className="flex items-center justify-center gap-1.5">
                                                 <svg
@@ -249,11 +263,13 @@ const AdminDashboard = () => {
                                             </span>
                                         </button>
                                         <button
-                                            onClick={() => updateStatus(order.id, "served")}
+                                            disabled={order.status === "served"}
+                                            onClick={() => updateStatus(order.id, "served", order.status)}
                                             className={`flex-1 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 active:scale-[0.98] ${order.status === "served"
                                                 ? "bg-green-500 text-white"
-                                                : "bg-stone-100 text-stone-700 hover:bg-stone-200"
-                                                }`}
+                                                : "bg-stone-100 text-stone-700 hover:bg-stone-200"}
+                                                ${order.status === "served" && "opacity-50 cursor-not-allowed"}
+                                                `}
                                         >
                                             <span className="flex items-center justify-center gap-1.5">
                                                 <svg
