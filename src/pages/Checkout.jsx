@@ -40,8 +40,9 @@ const Checkout = () => {
 
 
 return (
-    <div className="min-h-screen bg-gray-100 flex justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-xl shadow-md p-6">
+    <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="bg-white w-full max-w-md rounded-xl shadow-md p-5">
+        
         <h2 className="text-2xl font-bold mb-2 text-center">Checkout</h2>
         <p className="text-gray-600 text-center mb-4">
           Table No: <span className="font-semibold">{tableNumber}</span>
