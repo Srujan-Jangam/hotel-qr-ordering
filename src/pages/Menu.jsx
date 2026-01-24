@@ -42,7 +42,7 @@ const Menu = () => {
   const total = cart.reduce((sum, food) => sum + food.price * food.qty, 0);
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 overflow-x-hidden w-full">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-stone-200">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:py-5">
@@ -73,11 +73,11 @@ const Menu = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 pb-32 lg:pb-6">
+      <main className="max-w-6xl mx-auto px-4 py-6 pb-[140px] sm:pb-32 lg:pb-6 w-full overflow-x-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Menu Items */}
           <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {items.map((item) => (
                 <div
                   key={item.id}
@@ -85,7 +85,7 @@ const Menu = () => {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-stone-900 truncate">
+                      <h3 className="text-base sm:text-lg font-semibold text-stone-900 truncate">
                         {item.name}
                       </h3>
                       <span className="inline-block mt-1.5 px-2.5 py-0.5 text-xs font-medium bg-stone-100 text-stone-600 rounded-full">
@@ -169,7 +169,7 @@ const Menu = () => {
                 </div>
               ) : (
                 <>
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                  <div className="space-y-3 max-h-[50vh] overflow-y-auto overscroll-contain">
                     {cart.map((item) => (
                       <div
                         key={item.id}
@@ -218,7 +218,7 @@ const Menu = () => {
 
       {/* Cart - Mobile Fixed Bottom */}
       {cart.length > 0 && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-stone-200 p-4 overflow-x-hidden">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
@@ -234,7 +234,7 @@ const Menu = () => {
                 state: { cart, total, tableNumber },
               })
             }
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3.5 rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-200"
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-200"
           >
             Proceed to Checkout
           </button>
