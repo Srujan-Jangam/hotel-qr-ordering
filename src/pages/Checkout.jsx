@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate, } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -38,70 +38,304 @@ const Checkout = () => {
     }
   };
 
-
-return (
-    <div className="min-h-screen bg-gray-100 flex justify-center">
-      <div className="bg-white w-full max-w-md rounded-xl shadow-md p-5">
-        
-        <h2 className="text-2xl font-bold mb-2 text-center">Checkout</h2>
-        <p className="text-gray-600 text-center mb-4">
-          Table No: <span className="font-semibold">{tableNumber}</span>
-        </p>
-
-        {/* Cart Items */}
-        <div className="space-y-3 mb-4">
-          {cart.map(item => (
-            <div key={item.id} className="flex justify-between border-b pb-2">
-              <span>{item.name} × {item.qty}</span>
-              <span className="font-medium">₹{item.price * item.qty}</span>
+  return (
+    <div className="min-h-screen bg-stone-50">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-stone-200">
+        <div className="max-w-lg mx-auto px-4 py-4 sm:py-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
+                Checkout
+              </h1>
+              <p className="text-sm text-stone-500 mt-0.5">
+                Review your order
+              </p>
             </div>
-          ))}
+            <div className="flex items-center gap-2 bg-amber-50 text-amber-800 px-3 py-1.5 rounded-full border border-amber-200">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+              <span className="text-sm font-medium">Table {tableNumber}</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-lg mx-auto px-4 py-6 pb-32 sm:pb-6">
+        {/* Order Summary Card */}
+        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden mb-4">
+          <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2">
+            <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-4 h-4 text-amber-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-stone-900">Order Summary</h2>
+          </div>
+
+          <div className="px-5 py-4">
+            <div className="space-y-3">
+              {cart.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-xs font-bold">
+                      {item.qty}
+                    </span>
+                    <span className="text-sm text-stone-700 font-medium">
+                      {item.name}
+                    </span>
+                  </div>
+                  <span className="text-sm font-semibold text-stone-900">
+                    ₹{item.price * item.qty}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-stone-200 mt-4 pt-4 flex justify-between items-center">
+              <span className="text-stone-600 font-medium">Total</span>
+              <span className="text-2xl font-bold text-stone-900">₹{total}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Total */}
-        <div className="flex justify-between font-semibold text-lg mb-5">
-          <span>Total</span>
-          <span>₹{total}</span>
+        {/* Payment Method Card */}
+        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden mb-4">
+          <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2">
+            <div className="w-8 h-8 bg-stone-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-4 h-4 text-stone-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-stone-900">Payment Method</h2>
+          </div>
+
+          <div className="px-5 py-4 space-y-3">
+            <label
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                paymentMethod === "counter"
+                  ? "border-amber-400 bg-amber-50"
+                  : "border-stone-200 hover:border-stone-300"
+              }`}
+            >
+              <input
+                type="radio"
+                checked={paymentMethod === "counter"}
+                onChange={() => setPaymentMethod("counter")}
+                className="w-4 h-4 accent-amber-500"
+              />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-stone-900">
+                  Pay at Counter
+                </span>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Pay when your order is ready
+                </p>
+              </div>
+              <svg
+                className="w-5 h-5 text-stone-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            </label>
+
+            <label
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                paymentMethod === "online"
+                  ? "border-amber-400 bg-amber-50"
+                  : "border-stone-200 hover:border-stone-300"
+              }`}
+            >
+              <input
+                type="radio"
+                checked={paymentMethod === "online"}
+                onChange={() => setPaymentMethod("online")}
+                className="w-4 h-4 accent-amber-500"
+              />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-stone-900">
+                  Pay Online
+                </span>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Scan QR code to pay instantly
+                </p>
+              </div>
+              <svg
+                className="w-5 h-5 text-stone-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                />
+              </svg>
+            </label>
+          </div>
         </div>
 
-        {/* Payment Method */}
-        <h3 className="font-semibold mb-2">Payment Method</h3>
-        <div className="space-y-2 mb-4">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={paymentMethod === "counter"}
-              onChange={() => setPaymentMethod("counter")}
-              className="accent-black"
-            />
-            Pay at Counter
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={paymentMethod === "online"}
-              onChange={() => setPaymentMethod("online")}
-              className="accent-black"
-            />
-            Pay Online (Demo)
-          </label>
-        </div>
-
-        {/* Dummy QR */}
+        {/* QR Code Section */}
         {paymentMethod === "online" && (
-          <div className="text-center mb-4">
-            <p className="text-sm text-gray-600 mb-2">Scan QR to Pay (Demo)</p>
-            <img src="/dummy-qr.png" alt="Demo QR" className="mx-auto w-40" />
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 text-center mb-4">
+            <p className="text-sm text-stone-600 mb-4 font-medium">
+              Scan QR to Pay (Demo)
+            </p>
+            <div className="bg-stone-50 rounded-xl p-4 inline-block">
+              <img
+                src="/dummy-qr.png"
+                alt="Demo QR"
+                className="w-40 h-40 object-contain"
+              />
+            </div>
+            <p className="text-xs text-stone-400 mt-3">
+              Use any UPI app to complete payment
+            </p>
           </div>
         )}
 
-        {/* Confirm Button */}
+        {/* Desktop Confirm Button */}
         <button
           onClick={placeOrder}
           disabled={isPlacing}
-          className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50"
+          className="hidden sm:flex w-full items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3.5 rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-amber-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPlacing ? "Placing Order..." : "Confirm Order"}
+          {isPlacing ? (
+            <>
+              <svg
+                className="w-5 h-5 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Placing Order...
+            </>
+          ) : (
+            <>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Confirm Order
+            </>
+          )}
+        </button>
+      </main>
+
+      {/* Mobile Fixed Bottom Button */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <button
+          onClick={placeOrder}
+          disabled={isPlacing}
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3.5 rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isPlacing ? (
+            <>
+              <svg
+                className="w-5 h-5 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Placing Order...
+            </>
+          ) : (
+            <>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Confirm Order
+            </>
+          )}
         </button>
       </div>
     </div>
