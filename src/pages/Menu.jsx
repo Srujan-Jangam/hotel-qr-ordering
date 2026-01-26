@@ -83,6 +83,14 @@ const Menu = () => {
                   key={item.id}
                   className="group bg-white rounded-2xl border border-stone-200 p-5 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300"
                 >
+                  {/* Item Image (optional) */}
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-32 object-cover rounded-xl mb-4 group-hover:scale-[1.02] transition-transform"
+                    />
+                  )}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <h3 className="text-base sm:text-lg font-semibold text-stone-900 truncate">
