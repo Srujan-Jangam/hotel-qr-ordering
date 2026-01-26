@@ -83,7 +83,7 @@ const Menu = () => {
                   key={item.id}
                   className="group bg-white rounded-2xl border border-stone-200 p-5 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300"
                 >
-                  {/* Item Image (optional) */}
+                  {/* Item Image*/}
                   {item.image && (
                     <img
                       src={item.image}
