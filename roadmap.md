@@ -1,0 +1,11 @@
+## End Year Project Roadmap
+- [x] Create end-year-project branch
+- [x] Redesign Firestore architecture
+- [ ] Implement secure table tokens
+- [ ] Upgrade admin dashboard
+- [ ] Add Firebase authentication
+- [ ] Integrate Razorpay
+- [ ] Add order status tracking
+- [ ] Build analytics dashboard
+- [ ] Add multi-restaurant support
+- [ ] Final testing and deployment

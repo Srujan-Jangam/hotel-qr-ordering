@@ -4,9 +4,9 @@ import {
   collection,
   addDoc,
   serverTimestamp,
-  getDocs,      // <-- for fetching orders
-  updateDoc,    // <-- for merging
-  doc           // <-- for referencing specific document
+  getDocs, // <-- for fetching orders
+  updateDoc, // <-- for merging
+  doc, // <-- for referencing specific document
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -25,7 +25,6 @@ const Checkout = () => {
   const [duplicateOrderId, setDuplicateOrderId] = useState(null);
   const [mergedCart, setMergedCart] = useState([]);
   const [mergedTotal, setMergedTotal] = useState(0);
-
 
   // Helper to compare two carts
   const isSameCart = (cart1, cart2) => {
@@ -46,7 +45,6 @@ const Checkout = () => {
     return true;
   };
 
-
   const placeOrder = async () => {
     if (isPlacing) return;
     if (!cart || cart.length === 0) return alert("Cart is empty");
@@ -58,21 +56,28 @@ const Checkout = () => {
       const ordersRef = collection(db, "orders");
       const snapshot = await getDocs(ordersRef);
       const activeOrders = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(o => o.tableNumber === tableNumber && ["pending", "preparing"].includes(o.status));
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter(
+          (o) =>
+            o.tableNumber === tableNumber &&
+            ["pending", "preparing"].includes(o.status),
+        );
 
-      const duplicate = activeOrders.find(o => isSameCart(o.items, cart));
+      const duplicate = activeOrders.find((o) => isSameCart(o.items, cart));
 
       if (duplicate) {
         // 2️⃣ Prompt user
         const confirmMerge = window.confirm(
-          "You already have an active order with these items. Do you want to add the new items to your existing order?"
+          "You already have an active order with these items. Do you want to add the new items to your existing order?",
         );
 
         if (confirmMerge) {
           // 3️⃣ Merge items & update total
           const updatedItems = mergeCarts(duplicate.items, cart);
-          const updatedTotal = updatedItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+          const updatedTotal = updatedItems.reduce(
+            (sum, i) => sum + i.price * i.qty,
+            0,
+          );
 
           await updateDoc(doc(db, "orders", duplicate.id), {
             items: updatedItems,
@@ -94,12 +99,27 @@ const Checkout = () => {
 
       // 4️⃣ No duplicate: place new order
       const docRef = await addDoc(ordersRef, {
+        // Multi-restaurant support
+        restaurantId: "restaurant_001",
+
+        // Table information
+        tableId: `table_${String(tableNumber).padStart(3, "0")}`, // e.g. table_001
         tableNumber,
+
+        // Order details
         items: cart,
         total,
-        paymentMethod,
+
+        // Payment
+        paymentMethod: paymentMethod === "counter" ? "cash" : "online",
         paymentStatus: paymentMethod === "counter" ? "pending" : "demo",
+
+        // Order lifecycle
         status: "pending",
+        statusUpdatedAt: serverTimestamp(),
+
+        // Metadata
+        customerName: "Guest",
         createdAt: serverTimestamp(),
       });
 
@@ -115,8 +135,8 @@ const Checkout = () => {
   const mergeCarts = (existingItems, newItems) => {
     const merged = [...existingItems];
 
-    newItems.forEach(newItem => {
-      const index = merged.findIndex(i => i.id === newItem.id);
+    newItems.forEach((newItem) => {
+      const index = merged.findIndex((i) => i.id === newItem.id);
       if (index !== -1) {
         // If item exists, increase quantity
         merged[index].qty += newItem.qty;
@@ -139,9 +159,7 @@ const Checkout = () => {
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
                 Checkout
               </h1>
-              <p className="text-sm text-stone-500 mt-0.5">
-                Review your order
-              </p>
+              <p className="text-sm text-stone-500 mt-0.5">Review your order</p>
             </div>
             <div className="flex items-center gap-2 bg-amber-50 text-amber-800 px-3 py-1.5 rounded-full border border-amber-200">
               <svg
@@ -182,7 +200,9 @@ const Checkout = () => {
                 />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-stone-900">Order Summary</h2>
+            <h2 className="text-lg font-semibold text-stone-900">
+              Order Summary
+            </h2>
           </div>
 
           <div className="px-5 py-4">
@@ -209,7 +229,9 @@ const Checkout = () => {
 
             <div className="border-t border-stone-200 mt-4 pt-4 flex justify-between items-center">
               <span className="text-stone-600 font-medium">Total</span>
-              <span className="text-2xl font-bold text-stone-900">₹{total}</span>
+              <span className="text-2xl font-bold text-stone-900">
+                ₹{total}
+              </span>
             </div>
           </div>
         </div>
@@ -232,15 +254,18 @@ const Checkout = () => {
                 />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-stone-900">Payment Method</h2>
+            <h2 className="text-lg font-semibold text-stone-900">
+              Payment Method
+            </h2>
           </div>
 
           <div className="px-5 py-4 space-y-3">
             <label
-              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === "counter"
-                ? "border-amber-400 bg-amber-50"
-                : "border-stone-200 hover:border-stone-300"
-                }`}
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                paymentMethod === "counter"
+                  ? "border-amber-400 bg-amber-50"
+                  : "border-stone-200 hover:border-stone-300"
+              }`}
             >
               <input
                 type="radio"
@@ -272,10 +297,11 @@ const Checkout = () => {
             </label>
 
             <label
-              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === "online"
-                ? "border-amber-400 bg-amber-50"
-                : "border-stone-200 hover:border-stone-300"
-                }`}
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                paymentMethod === "online"
+                  ? "border-amber-400 bg-amber-50"
+                  : "border-stone-200 hover:border-stone-300"
+              }`}
             >
               <input
                 type="radio"
@@ -436,7 +462,8 @@ const Checkout = () => {
               Duplicate Order Detected
             </h3>
             <p className="text-sm text-stone-500 mb-4">
-              You already have an active order with these items. Do you want to merge the new items into your existing order?
+              You already have an active order with these items. Do you want to
+              merge the new items into your existing order?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -470,7 +497,6 @@ const Checkout = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
