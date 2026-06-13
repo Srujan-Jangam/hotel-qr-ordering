@@ -1,6 +1,13 @@
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../firebase";
@@ -9,14 +16,67 @@ const Menu = () => {
   const [items, setItems] = useState([]);
   const [cart, setCart] = useState([]);
 
+  const [isTableValid, setIsTableValid] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const [searchParams] = useSearchParams();
+
   const tableNumber = searchParams.get("table");
+  const restaurantId = searchParams.get("restaurantId") || "restaurant_001";
+  const token = searchParams.get("token");
+
+  const tableId = tableNumber
+    ? `table_${String(tableNumber).padStart(3, "0")}`
+    : null;
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    const validateTable = async () => {
+      try {
+        // Old QR codes (without token) should still work during migration
+        if (!token) {
+          setIsTableValid(true);
+          return true;
+        }
+
+        const tableDoc = await getDoc(doc(db, "tables", tableId));
+
+        if (!tableDoc.exists()) {
+          setIsTableValid(false);
+          return false;
+        }
+
+        if (!tableId) {
+          setIsTableValid(false);
+          return false;
+        }
+
+        const tableData = tableDoc.data();
+
+        const valid =
+          tableData.restaurantId === restaurantId &&
+          tableData.token === token &&
+          tableData.isActive === true;
+
+        setIsTableValid(valid);
+        return valid;
+      } catch (error) {
+        console.error("Table validation failed:", error);
+        setIsTableValid(false);
+        return false;
+      }
+    };
+
     const fetchMenu = async () => {
-      const querySnapshot = await getDocs(collection(db, "menuItems"));
+      const menuQuery = query(
+        collection(db, "menuItems"),
+        where("restaurantId", "==", restaurantId),
+        where("available", "==", true),
+      );
+
+      const querySnapshot = await getDocs(menuQuery);
+
       const data = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -24,15 +84,25 @@ const Menu = () => {
       setItems(data);
     };
 
-    fetchMenu();
-  }, []);
+    const initializePage = async () => {
+      const valid = await validateTable();
+
+      if (valid) {
+        await fetchMenu();
+      }
+
+      setLoading(false);
+    };
+
+    initializePage();
+  }, [restaurantId, tableId, token]);
 
   const addToCart = (food) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === food.id);
       if (existing) {
         return prev.map((i) =>
-          i.id === food.id ? { ...i, qty: i.qty + 1 } : i
+          i.id === food.id ? { ...i, qty: i.qty + 1 } : i,
         );
       }
       return [...prev, { ...food, qty: 1 }];
@@ -40,6 +110,26 @@ const Menu = () => {
   };
 
   const total = cart.reduce((sum, food) => sum + food.price * food.qty, 0);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h2 className="text-xl font-semibold">Loading...</h2>
+      </div>
+    );
+  }
+
+  if (!isTableValid) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
+        <h1 className="text-3xl font-bold mb-4">Invalid QR Code</h1>
+        <p className="text-stone-600">
+          This QR code is invalid or no longer active. Please contact the
+          restaurant staff.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 overflow-x-hidden w-full">
@@ -209,7 +299,14 @@ const Menu = () => {
                     <button
                       onClick={() =>
                         navigate("/checkout", {
-                          state: { cart, total, tableNumber },
+                          state: {
+                            cart,
+                            total,
+                            tableNumber,
+                            tableId,
+                            restaurantId,
+                            token,
+                          },
                         })
                       }
                       className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-amber-200"
@@ -239,7 +336,14 @@ const Menu = () => {
           <button
             onClick={() =>
               navigate("/checkout", {
-                state: { cart, total, tableNumber },
+                state: {
+                  cart,
+                  total,
+                  tableNumber,
+                  tableId,
+                  restaurantId,
+                  token,
+                },
               })
             }
             className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 rounded-xl font-semibold hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-200"
