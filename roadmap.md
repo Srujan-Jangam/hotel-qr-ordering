@@ -2,7 +2,7 @@
 - [x] Create end-year-project branch
 - [x] Redesign Firestore architecture
 - [x] Implement secure table tokens
-- [ ] Upgrade admin dashboard
+- [x] Upgrade admin dashboard
 - [ ] Add Firebase authentication
 - [ ] Integrate Razorpay
 - [ ] Add order status tracking
