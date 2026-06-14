@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   collection,
@@ -11,11 +11,18 @@ import {
 
 import { db } from "../firebase";
 
+
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { cart, total, tableNumber } = location.state || {};
+  const { cart, total, tableNumber, tableId, restaurantId, token } = location.state || {};
+
+  useEffect(() => {
+  if (!cart || !tableNumber || !restaurantId || !tableId) {
+    navigate("/");
+  }
+}, [cart, tableNumber, restaurantId, tableId, navigate]);
 
   const [isPlacing, setIsPlacing] = useState(false);
 
@@ -99,11 +106,9 @@ const Checkout = () => {
 
       // 4️⃣ No duplicate: place new order
       const docRef = await addDoc(ordersRef, {
-        // Multi-restaurant support
-        restaurantId: "restaurant_001",
-
-        // Table information
-        tableId: `table_${String(tableNumber).padStart(3, "0")}`, // e.g. table_001
+        // Secure identity
+        restaurantId,
+        tableId,
         tableNumber,
 
         // Order details
@@ -111,7 +116,7 @@ const Checkout = () => {
         total,
 
         // Payment
-        paymentMethod: paymentMethod === "counter" ? "cash" : "online",
+        paymentMethod,
         paymentStatus: paymentMethod === "counter" ? "pending" : "demo",
 
         // Order lifecycle
