@@ -47,14 +47,12 @@ const Menu = () => {
           return false;
         }
 
-        ;
+        const tableDoc = await getDoc(doc(db, "tables", tableId));
 
         if (!tableDoc.exists()) {
           setIsTableValid(false);
           return false;
         }
-
-        const tableDoc = await getDoc(doc(db, "tables", tableId));
 
         if (!tableId) {
           setIsTableValid(false);
