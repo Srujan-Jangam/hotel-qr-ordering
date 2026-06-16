@@ -103,6 +103,18 @@ const AdminDashboard = () => {
         (o) => o.paymentMethod === "counter"
     ).length;
 
+    const pendingOrders = orders.filter(
+        (o) => o.status === "pending"
+    ).length;
+
+    const preparingOrders = orders.filter(
+        (o) => o.status === "preparing"
+    ).length;
+
+    const servedOrders = orders.filter(
+        (o) => o.status === "served"
+    ).length;
+
     const itemFrequency = {};
 
     orders.forEach((order) => {
@@ -126,6 +138,9 @@ const AdminDashboard = () => {
         }
     });
 
+    const topSellingItems = Object.entries(itemFrequency)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
 
     return (
         <div className="min-h-screen bg-stone-50">
@@ -220,6 +235,66 @@ const AdminDashboard = () => {
                                 </span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div className="pb-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                        {/* Order Status Breakdown */}
+                        <div className="bg-white rounded-2xl border border-stone-200 p-5">
+                            <h2 className="text-xl font-bold text-stone-900 mb-4">
+                                Order Status Breakdown
+                            </h2>
+
+                            <div className="space-y-3">
+                                <div className="flex justify-between">
+                                    <span>📦 Pending Orders</span>
+                                    <span className="font-semibold">{pendingOrders}</span>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <span>👨‍🍳 Preparing Orders</span>
+                                    <span className="font-semibold">{preparingOrders}</span>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <span>✅ Served Orders</span>
+                                    <span className="font-semibold">{servedOrders}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Top Selling Items */}
+                        <div className="bg-white rounded-2xl border border-stone-200 p-5">
+                            <h2 className="text-xl font-bold text-stone-900 mb-4">
+                                Top Selling Items
+                            </h2>
+
+                            {topSellingItems.length === 0 ? (
+                                <p className="text-stone-500">
+                                    No sales data available.
+                                </p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {topSellingItems.map(([name, count], index) => (
+                                        <div
+                                            key={name}
+                                            className="flex justify-between"
+                                        >
+                                            <span>
+                                                #{index + 1} {name}
+                                            </span>
+
+                                            <span className="font-semibold">
+                                                {count} sold
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                     </div>
                 </div>
 
