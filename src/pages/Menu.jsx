@@ -8,6 +8,7 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
+
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../firebase";
@@ -19,11 +20,17 @@ const Menu = () => {
   const [isTableValid, setIsTableValid] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const [restaurant, setRestaurant] = useState(null);
+
+  const [restaurantClosed, setRestaurantClosed] =
+    useState(false);
+
   const [searchParams] = useSearchParams();
 
   const tableNumber = searchParams.get("table");
   const restaurantId = searchParams.get("restaurantId") || "restaurant_001";
   const token = searchParams.get("token");
+
 
   const tableId = tableNumber
     ? `table_${String(tableNumber).padStart(3, "0")}`
@@ -34,18 +41,20 @@ const Menu = () => {
   useEffect(() => {
     const validateTable = async () => {
       try {
-        // Old QR codes (without token) should still work during migration
+
         if (!token) {
-          setIsTableValid(true);
-          return true;
+          setIsTableValid(false);
+          return false;
         }
 
-        const tableDoc = await getDoc(doc(db, "tables", tableId));
+        ;
 
         if (!tableDoc.exists()) {
           setIsTableValid(false);
           return false;
         }
+
+        const tableDoc = await getDoc(doc(db, "tables", tableId));
 
         if (!tableId) {
           setIsTableValid(false);
@@ -87,10 +96,26 @@ const Menu = () => {
     const initializePage = async () => {
       const valid = await validateTable();
 
-      if (valid) {
-        await fetchMenu();
+      if (!valid) {
+        setLoading(false);
+        return;
       }
 
+      await fetchMenu();
+
+      const restaurantDoc = await getDoc(
+        doc(db, "restaurants", restaurantId)
+      );
+
+      if (restaurantDoc.exists()) {
+        const restaurantData = restaurantDoc.data();
+
+        setRestaurant(restaurantData);
+
+        if (!restaurantData.isActive) {
+          setRestaurantClosed(true);
+        }
+      }
       setLoading(false);
     };
 
@@ -119,6 +144,21 @@ const Menu = () => {
     );
   }
 
+  if (restaurantClosed) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
+        <h1 className="text-4xl font-bold mb-4">
+          Restaurant Closed
+        </h1>
+
+        <p className="text-stone-600">
+          We are currently not accepting orders.
+          Please visit again later.
+        </p>
+      </div>
+    );
+  }
+
   if (!isTableValid) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
@@ -139,9 +179,9 @@ const Menu = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
-                Our Menu
+                {restaurant?.name || "Restaurant"}
               </h1>
-              <p className="text-sm text-stone-500 mt-0.5">Fresh & delicious</p>
+              <p className="text-sm text-stone-500 mt-0.5">{restaurant?.address}</p>
             </div>
             <div className="flex items-center gap-2 bg-amber-50 text-amber-800 px-3 py-1.5 rounded-full border border-amber-200">
               <svg

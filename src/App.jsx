@@ -6,6 +6,7 @@ import OrderStatus from "./pages/OrderStatus";
 import MenuManagement from "./pages/MenuManagement";
 import AdminLogin from "./pages/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RestaurantSettings from "./pages/RestaurantSettings";
 
 function App() {
   return (
@@ -31,6 +32,14 @@ function App() {
           }
         />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedRoute>
+              <RestaurantSettings />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
