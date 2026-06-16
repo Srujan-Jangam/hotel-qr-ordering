@@ -220,38 +220,38 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            <main className="max-w-6xl mx-auto px-4 py-6">
+            <main className="max-w-7xl mx-auto px-4 py-6">
 
-                <div className="pb-4">
+                <div className="mb-6">
                     <div className="bg-white rounded-2xl border border-stone-200 p-5">
                         <h2 className="text-xl font-bold text-stone-900 mb-4">
                             Quick Analytics
                         </h2>
 
                         <div className="space-y-3">
-                            <div className="flex justify-between border-b border-stone-100 pb-2">
+                            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
                                 <span className="text-stone-600">
                                     📱 Online Payments
                                 </span>
-                                <span className="font-semibold">
+                                <span className="font-bold text-xl text-stone-900">
                                     {onlinePayments}
                                 </span>
                             </div>
 
-                            <div className="flex justify-between border-b border-stone-100 pb-2">
+                            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
                                 <span className="text-stone-600">
                                     💵 Counter Payments
                                 </span>
-                                <span className="font-semibold">
+                                <span className="font-bold text-xl text-stone-900">
                                     {counterPayments}
                                 </span>
                             </div>
 
-                            <div className="flex justify-between">
+                            <div className="flex justify-between items-center">
                                 <span className="text-stone-600">
                                     🍔 Most Ordered Item
                                 </span>
-                                <span className="font-semibold text-right">
+                                <span className="font-bold text-right text-stone-900">
                                     {mostOrderedItem}
                                     {highestCount > 0 && ` (${highestCount} sold)`}
                                 </span>
@@ -260,7 +260,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className="pb-4">
+                <div className="mb-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
                         {/* Order Status Breakdown */}
@@ -270,19 +270,19 @@ const AdminDashboard = () => {
                             </h2>
 
                             <div className="space-y-3">
-                                <div className="flex justify-between">
-                                    <span>📦 Pending Orders</span>
-                                    <span className="font-semibold">{pendingOrders}</span>
+                                <div className="flex justify-between items-center pb-2 border-b border-stone-100">
+                                    <span className="text-stone-600">📦 Pending Orders</span>
+                                    <span className="font-bold text-xl text-stone-900">{pendingOrders}</span>
                                 </div>
 
-                                <div className="flex justify-between">
-                                    <span>👨‍🍳 Preparing Orders</span>
-                                    <span className="font-semibold">{preparingOrders}</span>
+                                <div className="flex justify-between items-center pb-2 border-b border-stone-100">
+                                    <span className="text-stone-600">👨‍🍳 Preparing Orders</span>
+                                    <span className="font-bold text-xl text-stone-900">{preparingOrders}</span>
                                 </div>
 
-                                <div className="flex justify-between">
-                                    <span>✅ Served Orders</span>
-                                    <span className="font-semibold">{servedOrders}</span>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-stone-600">✅ Served Orders</span>
+                                    <span className="font-bold text-xl text-stone-900">{servedOrders}</span>
                                 </div>
                             </div>
                         </div>
@@ -302,13 +302,13 @@ const AdminDashboard = () => {
                                     {topSellingItems.map(([name, count], index) => (
                                         <div
                                             key={name}
-                                            className="flex justify-between"
+                                            className="flex justify-between items-center pb-2 border-b border-stone-100 last:border-0 last:pb-0"
                                         >
-                                            <span>
+                                            <span className="text-stone-600">
                                                 #{index + 1} {name}
                                             </span>
 
-                                            <span className="font-semibold">
+                                            <span className="font-bold text-stone-900">
                                                 {count} sold
                                             </span>
                                         </div>
@@ -515,26 +515,20 @@ const AdminDashboard = () => {
                     )}
                 </section>
 
-                {/* Online Payments */}
-                <div className="bg-white rounded-2xl border border-stone-200 p-4">
-                    <p className="text-sm text-stone-500">Online Payments</p>
-                    <h2 className="text-3xl font-bold text-purple-600">
-                        {onlinePayments}
-                    </h2>
-                </div>
-
                 {/* Completed Orders */}
-                <section>
+                <section className="mb-8">
                     <h2 className="text-lg font-semibold text-stone-800 mb-4">
                         Completed Orders
                     </h2>
 
                     {completedOrders.length === 0 ? (
-                        <p className="text-sm text-stone-400">
-                            No completed orders yet
-                        </p>
+                        <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center">
+                            <p className="text-sm text-stone-400">
+                                No completed orders yet
+                            </p>
+                        </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 opacity-80">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 opacity-75 hover:opacity-100 transition-opacity">
                             {completedOrders.map((order) => (
                                 <div
                                     key={order.id}
