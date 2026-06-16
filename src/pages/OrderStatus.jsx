@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 
 const OrderStatus = () => {
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, "orders", orderId), (docSnap) => {
@@ -290,6 +293,20 @@ const OrderStatus = () => {
             </div>
           </div>
         </div>
+
+        <button
+  onClick={() => navigate(`/receipt/${orderId}`)}
+  className="w-full mt-4 bg-amber-500 text-white py-3 rounded-xl font-semibold hover:bg-amber-600 transition"
+>
+  View Receipt
+</button>
+
+<button
+  onClick={() => navigate("/my-orders")}
+  className="w-full mt-3 border border-stone-300 py-3 rounded-xl font-medium"
+>
+  My Orders
+</button>
 
         {/* Help Card */}
         <div className="bg-stone-100 rounded-2xl p-5 text-center">

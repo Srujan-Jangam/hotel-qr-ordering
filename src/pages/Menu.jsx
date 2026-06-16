@@ -197,6 +197,12 @@ const Menu = () => {
               </svg>
               <span className="text-sm font-medium">Table {tableNumber}</span>
             </div>
+            <button
+              onClick={() => navigate("/my-orders")}
+              className="bg-stone-900 text-white px-4 py-2 rounded-xl"
+            >
+              My Orders
+            </button>
           </div>
         </div>
       </header>

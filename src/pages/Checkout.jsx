@@ -15,14 +15,15 @@ import { db } from "../firebase";
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [customerName, setCustomerName] = useState("");
 
-  const { cart, total, tableNumber, tableId, restaurantId, token } = location.state || {};
+  const { cart, total, tableNumber, tableId, restaurantId } = location.state || {};
 
   useEffect(() => {
-  if (!cart || !tableNumber || !restaurantId || !tableId) {
-    navigate("/");
-  }
-}, [cart, tableNumber, restaurantId, tableId, navigate]);
+    if (!cart || !tableNumber || !restaurantId || !tableId) {
+      navigate("/");
+    }
+  }, [cart, tableNumber, restaurantId, tableId, navigate]);
 
   const [isPlacing, setIsPlacing] = useState(false);
 
@@ -59,7 +60,7 @@ const Checkout = () => {
     setIsPlacing(true);
 
     try {
-      // 1️⃣ Check for duplicate active orders
+      //1️⃣ Check for duplicate active orders
       const ordersRef = collection(db, "orders");
       const snapshot = await getDocs(ordersRef);
       const activeOrders = snapshot.docs
@@ -124,9 +125,20 @@ const Checkout = () => {
         statusUpdatedAt: serverTimestamp(),
 
         // Metadata
-        customerName: "Guest",
+        customerName: customerName.trim() || "Guest",
         createdAt: serverTimestamp(),
       });
+
+      const existingOrders = JSON.parse(
+        localStorage.getItem("myOrders") || "[]"
+      );
+
+      existingOrders.push(docRef.id);
+
+      localStorage.setItem(
+        "myOrders",
+        JSON.stringify(existingOrders)
+      );
 
       navigate(`/order/${docRef.id}`);
     } catch (err) {
@@ -241,6 +253,25 @@ const Checkout = () => {
           </div>
         </div>
 
+        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden mb-4">
+          <div className="px-5 py-4 border-b border-stone-100">
+            <h2 className="text-lg font-semibold text-stone-900">
+              Customer Details
+            </h2>
+          </div>
+
+          <div className="p-5">
+            <input
+              type="text"
+              placeholder="Enter your name"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              maxLength={50}
+              className="w-full border rounded-xl p-3"
+            />
+          </div>
+        </div>
+
         {/* Payment Method Card */}
         <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden mb-4">
           <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2">
@@ -266,11 +297,10 @@ const Checkout = () => {
 
           <div className="px-5 py-4 space-y-3">
             <label
-              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                paymentMethod === "counter"
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === "counter"
                   ? "border-amber-400 bg-amber-50"
                   : "border-stone-200 hover:border-stone-300"
-              }`}
+                }`}
             >
               <input
                 type="radio"
@@ -302,11 +332,10 @@ const Checkout = () => {
             </label>
 
             <label
-              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                paymentMethod === "online"
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === "online"
                   ? "border-amber-400 bg-amber-50"
                   : "border-stone-200 hover:border-stone-300"
-              }`}
+                }`}
             >
               <input
                 type="radio"

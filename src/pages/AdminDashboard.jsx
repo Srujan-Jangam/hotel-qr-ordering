@@ -373,13 +373,22 @@ const AdminDashboard = () => {
                                                 </svg>
                                             </div>
                                             <div>
-                                                <h3 className="font-semibold text-stone-900">Table {order.tableNumber}</h3>
+                                                <h3 className="font-semibold text-stone-900">
+                                                    Table {order.tableNumber}
+                                                </h3>
+
+                                                <p className="text-sm text-amber-600 font-medium">
+                                                    {order.customerName || "Guest"}
+                                                </p>
+
                                                 <p className="text-xs text-stone-500">
                                                     Order #{order.id.slice(-6)}
                                                 </p>
+
                                                 <p className="text-xs text-stone-400 mt-0.5">
                                                     Placed: {formatDateTime(order.createdAt)}
                                                 </p>
+
                                                 {order.statusUpdatedAt && (
                                                     <p className="text-xs text-stone-400">
                                                         Last Update: {formatDateTime(order.statusUpdatedAt)}

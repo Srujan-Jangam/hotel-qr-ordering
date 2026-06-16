@@ -8,6 +8,9 @@ import AdminLogin from "./pages/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RestaurantSettings from "./pages/RestaurantSettings";
 import QRManagement from "./pages/QRManagement";
+import MyOrders from "./pages/MyOrders";
+import Receipt from "./pages/Receipt";
+
 
 function App() {
   return (
@@ -48,6 +51,14 @@ function App() {
               <QRManagement />
             </ProtectedRoute>
           }
+        />
+        <Route
+          path="/my-orders"
+          element={<MyOrders />}
+        />
+        <Route
+          path="/receipt/:orderId"
+          element={<Receipt />}
         />
       </Routes>
     </BrowserRouter>
