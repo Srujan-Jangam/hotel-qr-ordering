@@ -7,6 +7,7 @@ import MenuManagement from "./pages/MenuManagement";
 import AdminLogin from "./pages/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RestaurantSettings from "./pages/RestaurantSettings";
+import QRManagement from "./pages/QRManagement";
 
 function App() {
   return (
@@ -37,6 +38,14 @@ function App() {
           element={
             <ProtectedRoute>
               <RestaurantSettings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/qr"
+          element={
+            <ProtectedRoute>
+              <QRManagement />
             </ProtectedRoute>
           }
         />
