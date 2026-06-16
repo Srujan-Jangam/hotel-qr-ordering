@@ -3,7 +3,7 @@
 - [x] Redesign Firestore architecture
 - [x] Implement secure table tokens
 - [x] Upgrade admin dashboard
-- [ ] Add Firebase authentication
+- [x] Add Firebase authentication
 - [ ] Integrate Razorpay
 - [ ] Add order status tracking
 - [ ] Build analytics dashboard

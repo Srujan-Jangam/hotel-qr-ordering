@@ -1,8 +1,23 @@
 import { useEffect, useState } from "react";
 import { collection, onSnapshot, updateDoc, doc, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate("/admin/login");
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    };
+
     const [orders, setOrders] = useState([]);
 
     const [menuCount, setMenuCount] = useState(0);
@@ -163,6 +178,13 @@ const AdminDashboard = () => {
                         </span>
                         <span className="text-sm font-medium">{activeOrders.length} Active Orders</span>
                     </div>
+
+                    <button
+                        onClick={handleLogout}
+                        className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition"
+                    >
+                        Logout
+                    </button>
                 </div>
             </header>
 
