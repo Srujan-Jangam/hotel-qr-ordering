@@ -4,8 +4,7 @@
 - [x] Implement secure table tokens
 - [x] Upgrade admin dashboard
 - [x] Add Firebase authentication
-- [ ] Integrate Razorpay
-- [ ] Add order status tracking
-- [ ] Build analytics dashboard
-- [ ] Add multi-restaurant support
-- [ ] Final testing and deployment
+- [x] Add order status tracking
+- [x] Build analytics dashboard
+- [x] Add multi-restaurant support
+- [x] Final testing and deployment
