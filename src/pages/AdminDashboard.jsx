@@ -5,6 +5,8 @@ import { db } from "../firebase";
 const AdminDashboard = () => {
     const [orders, setOrders] = useState([]);
 
+    const [menuCount, setMenuCount] = useState(0);
+
     useEffect(() => {
         // Listen to orders collection, sorted by newest first
         const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
@@ -16,7 +18,18 @@ const AdminDashboard = () => {
             setOrders(data);
         });
 
-        return () => unsubscribe();
+        // Listen to menu items collection
+        const menuUnsubscribe = onSnapshot(
+            collection(db, "menuItems"),
+            (snapshot) => {
+                setMenuCount(snapshot.size);
+            }
+        );
+
+        return () => {
+            unsubscribe();
+            menuUnsubscribe();
+        };
     }, []);
 
     const updateStatus = async (orderId, newStatus, currentStatus) => {
@@ -75,6 +88,45 @@ const AdminDashboard = () => {
         (o) => o.status === "served"
     );
 
+    const totalOrders = orders.length;
+    const activeOrderCount = activeOrders.length;
+
+    const revenue = orders
+        .filter((o) => ["served", "completed"].includes(o.status))
+        .reduce((sum, order) => sum + (order.total || 0), 0);
+
+    const onlinePayments = orders.filter(
+        (o) => o.paymentMethod === "online"
+    ).length;
+
+    const counterPayments = orders.filter(
+        (o) => o.paymentMethod === "counter"
+    ).length;
+
+    const itemFrequency = {};
+
+    orders.forEach((order) => {
+        if (!order.items) return;
+
+        order.items.forEach((item) => {
+            if (!itemFrequency[item.name]) {
+                itemFrequency[item.name] = 0;
+            }
+            itemFrequency[item.name] += item.qty || 1;
+        });
+    });
+
+    let mostOrderedItem = "No orders yet";
+    let highestCount = 0;
+
+    Object.entries(itemFrequency).forEach(([name, count]) => {
+        if (count > highestCount) {
+            highestCount = count;
+            mostOrderedItem = name;
+        }
+    });
+
+
     return (
         <div className="min-h-screen bg-stone-50">
             {/* Header */}
@@ -99,7 +151,77 @@ const AdminDashboard = () => {
                 </div>
             </header>
 
+            <div className="max-w-7xl mx-auto px-4 py-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+                        <p className="text-sm text-stone-500">Total Orders</p>
+                        <h2 className="text-3xl font-bold text-stone-900">
+                            {totalOrders}
+                        </h2>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+                        <p className="text-sm text-stone-500">Active Orders</p>
+                        <h2 className="text-3xl font-bold text-amber-600">
+                            {activeOrderCount}
+                        </h2>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+                        <p className="text-sm text-stone-500">Revenue</p>
+                        <h2 className="text-3xl font-bold text-green-600">
+                            ₹{revenue}
+                        </h2>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+                        <p className="text-sm text-stone-500">Menu Items</p>
+                        <h2 className="text-3xl font-bold text-blue-600">
+                            {menuCount}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
             <main className="max-w-6xl mx-auto px-4 py-6">
+
+                <div className="pb-4">
+                    <div className="bg-white rounded-2xl border border-stone-200 p-5">
+                        <h2 className="text-xl font-bold text-stone-900 mb-4">
+                            Quick Analytics
+                        </h2>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between border-b border-stone-100 pb-2">
+                                <span className="text-stone-600">
+                                    📱 Online Payments
+                                </span>
+                                <span className="font-semibold">
+                                    {onlinePayments}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-between border-b border-stone-100 pb-2">
+                                <span className="text-stone-600">
+                                    💵 Counter Payments
+                                </span>
+                                <span className="font-semibold">
+                                    {counterPayments}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <span className="text-stone-600">
+                                    🍔 Most Ordered Item
+                                </span>
+                                <span className="font-semibold text-right">
+                                    {mostOrderedItem}
+                                    {highestCount > 0 && ` (${highestCount} sold)`}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Active Orders */}
                 <section className="mb-8">
@@ -287,6 +409,14 @@ const AdminDashboard = () => {
                     )}
                 </section>
 
+                {/* Online Payments */}
+                <div className="bg-white rounded-2xl border border-stone-200 p-4">
+                    <p className="text-sm text-stone-500">Online Payments</p>
+                    <h2 className="text-3xl font-bold text-purple-600">
+                        {onlinePayments}
+                    </h2>
+                </div>
+
                 {/* Completed Orders */}
                 <section>
                     <h2 className="text-lg font-semibold text-stone-800 mb-4">
@@ -454,6 +584,7 @@ const AdminDashboard = () => {
                         </div>
                     )}
                 </section>
+
             </main>
         </div>
     );
