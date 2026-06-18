@@ -376,8 +376,7 @@ const Checkout = () => {
             </p>
             <div className="bg-stone-50 rounded-xl p-4 inline-block">
               <img
-                src="/dummy-qr.png"
-                alt="Demo QR"
+                src="./src/assets/dummy-qr.png"
                 className="w-40 h-40 object-contain"
               />
             </div>

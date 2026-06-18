@@ -168,7 +168,7 @@ const MenuManagement = () => {
                     {menuItems.map((item) => (
                         <div
                             key={item.id}
-                            className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm"
+                            className="bg-white rounded-2xl border border-stone-200 overflow-visible shadow-sm hover:shadow-md transition-shadow flex flex-col"
                         >
                             {item.image && (
                                 <img
@@ -178,14 +178,14 @@ const MenuManagement = () => {
                                 />
                             )}
 
-                            <div className="p-4">
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-lg font-semibold text-stone-900">
+                            <div className="p-4 flex flex-col flex-1">
+                                <div className="flex justify-between items-start gap-2 mb-2">
+                                    <h2 className="text-lg font-semibold text-stone-900 flex-1 line-clamp-2">
                                         {item.name}
                                     </h2>
 
                                     <span
-                                        className={`text-xs px-2 py-1 rounded-full font-medium ${item.available
+                                        className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap flex-shrink-0 ${item.available
                                             ? "bg-green-100 text-green-700"
                                             : "bg-red-100 text-red-700"
                                             }`}
@@ -194,228 +194,239 @@ const MenuManagement = () => {
                                     </span>
                                 </div>
 
-                                <p className="text-sm text-stone-500 mt-2">{item.category}</p>
+                                <p className="text-sm text-stone-500 mb-3 line-clamp-1">{item.category}</p>
 
-                                <p className="text-xl font-bold text-amber-600 mt-3">
+                                <p className="text-xl font-bold text-amber-600 mb-4">
                                     ₹{item.price}
                                 </p>
-                                <div className="mt-4 flex gap-2">
-                                    <button
-                                        onClick={() => openEditModal(item)}
-                                        className="flex-1 py-2 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition"
-                                    >
-                                        Edit
-                                    </button>
+                                
+                                <div className="space-y-2 mt-auto">
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => openEditModal(item)}
+                                            className="flex-1 py-2 px-3 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition text-sm"
+                                        >
+                                            Edit
+                                        </button>
 
+                                        <button
+                                            onClick={() =>
+                                                toggleAvailability(item.id, item.available)
+                                            }
+                                            className={`flex-1 py-2 px-3 rounded-xl font-medium transition text-sm ${item.available
+                                                ? "bg-red-100 text-red-700 hover:bg-red-200"
+                                                : "bg-green-100 text-green-700 hover:bg-green-200"
+                                                }`}
+                                        >
+                                            {item.available
+                                                ? "Disable"
+                                                : "Enable"}
+                                        </button>
+                                    </div>
                                     <button
                                         onClick={() =>
-                                            toggleAvailability(item.id, item.available)
+                                            deleteMenuItem(item.id, item.name)
                                         }
-                                        className={`flex-1 py-2 rounded-xl font-medium transition ${item.available
-                                            ? "bg-red-100 text-red-700 hover:bg-red-200"
-                                            : "bg-green-100 text-green-700 hover:bg-green-200"
-                                            }`}
+                                        className="w-full py-2 px-3 rounded-xl bg-red-500 text-white hover:bg-red-600 transition font-medium text-sm"
                                     >
-                                        {item.available
-                                            ? "Disable"
-                                            : "Enable"}
+                                        Delete Item
                                     </button>
                                 </div>
-                                <button
-                                    onClick={() =>
-                                        deleteMenuItem(item.id, item.name)
-                                    }
-                                    className="w-full py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition font-medium"
-                                >
-                                    Delete Item
-                                </button>
                             </div>
                         </div>
                     ))}
-                    {showAddModal && (
-                        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
-                                <h2 className="text-2xl font-bold mb-4">
-                                    Add New Menu Item
-                                </h2>
-
-                                <input
-                                    type="text"
-                                    value={newItem.name}
-                                    onChange={(e) =>
-                                        setNewItem({
-                                            ...newItem,
-                                            name: e.target.value,
-                                        })
-                                    }
-                                    className="w-full border rounded-lg p-2 mb-3"
-                                    placeholder="Item Name"
-                                />
-
-                                <input
-                                    type="number"
-                                    value={newItem.price}
-                                    onChange={(e) =>
-                                        setNewItem({
-                                            ...newItem,
-                                            price: e.target.value,
-                                        })
-                                    }
-                                    className="w-full border rounded-lg p-2 mb-3"
-                                    placeholder="Price"
-                                />
-
-                                <input
-                                    type="text"
-                                    value={newItem.category}
-                                    onChange={(e) =>
-                                        setNewItem({
-                                            ...newItem,
-                                            category: e.target.value,
-                                        })
-                                    }
-                                    className="w-full border rounded-lg p-2 mb-3"
-                                    placeholder="Category"
-                                />
-
-                                <textarea
-                                    value={newItem.description}
-                                    onChange={(e) =>
-                                        setNewItem({
-                                            ...newItem,
-                                            description: e.target.value,
-                                        })
-                                    }
-                                    className="w-full border rounded-lg p-2 mb-3"
-                                    rows={3}
-                                    placeholder="Description"
-                                />
-
-                                <input
-                                    type="text"
-                                    value={newItem.image}
-                                    onChange={(e) =>
-                                        setNewItem({
-                                            ...newItem,
-                                            image: e.target.value,
-                                        })
-                                    }
-                                    className="w-full border rounded-lg p-2 mb-3"
-                                    placeholder="Image URL"
-                                />
-
-                                <div className="flex justify-end gap-3">
-                                    <button
-                                        onClick={() => {
-                                            setShowAddModal(false);
-                                            setNewItem({
-                                                name: "",
-                                                price: "",
-                                                category: "",
-                                                description: "",
-                                                image: "",
-                                            });
-                                        }}
-                                        className="px-4 py-2 rounded-lg border"
-                                    >
-                                        Cancel
-                                    </button>
-
-                                    <button
-                                        onClick={addMenuItem}
-                                        className="px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition"
-                                    >
-                                        Add Item
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </main>
+            
+            {/* Add Modal */}
+            {showAddModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-2xl font-bold mb-4 sticky top-0 bg-white">
+                            Add New Menu Item
+                        </h2>
+
+                        <div className="space-y-3">
+                            <input
+                                type="text"
+                                value={newItem.name}
+                                onChange={(e) =>
+                                    setNewItem({
+                                        ...newItem,
+                                        name: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Item Name"
+                            />
+
+                            <input
+                                type="number"
+                                value={newItem.price}
+                                onChange={(e) =>
+                                    setNewItem({
+                                        ...newItem,
+                                        price: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Price"
+                            />
+
+                            <input
+                                type="text"
+                                value={newItem.category}
+                                onChange={(e) =>
+                                    setNewItem({
+                                        ...newItem,
+                                        category: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Category"
+                            />
+
+                            <textarea
+                                value={newItem.description}
+                                onChange={(e) =>
+                                    setNewItem({
+                                        ...newItem,
+                                        description: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                rows={3}
+                                placeholder="Description"
+                            />
+
+                            <input
+                                type="text"
+                                value={newItem.image}
+                                onChange={(e) =>
+                                    setNewItem({
+                                        ...newItem,
+                                        image: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Image URL"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-6">
+                            <button
+                                onClick={() => {
+                                    setShowAddModal(false);
+                                    setNewItem({
+                                        name: "",
+                                        price: "",
+                                        category: "",
+                                        description: "",
+                                        image: "",
+                                    });
+                                }}
+                                className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 transition"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={addMenuItem}
+                                className="px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition font-medium"
+                            >
+                                Add Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Edit Modal */}
             {showEditModal && editingItem && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
-                        <h2 className="text-2xl font-bold mb-4">
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-2xl font-bold mb-4 sticky top-0 bg-white">
                             Edit Menu Item
                         </h2>
 
-                        <input
-                            type="text"
-                            value={editingItem.name}
-                            onChange={(e) =>
-                                setEditingItem({
-                                    ...editingItem,
-                                    name: e.target.value,
-                                })
-                            }
-                            className="w-full border rounded-lg p-2 mb-3"
-                            placeholder="Item Name"
-                        />
+                        <div className="space-y-3">
+                            <input
+                                type="text"
+                                value={editingItem.name}
+                                onChange={(e) =>
+                                    setEditingItem({
+                                        ...editingItem,
+                                        name: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Item Name"
+                            />
 
-                        <input
-                            type="number"
-                            value={editingItem.price}
-                            onChange={(e) =>
-                                setEditingItem({
-                                    ...editingItem,
-                                    price: Number(e.target.value),
-                                })
-                            }
-                            className="w-full border rounded-lg p-2 mb-3"
-                            placeholder="Price"
-                        />
+                            <input
+                                type="number"
+                                value={editingItem.price}
+                                onChange={(e) =>
+                                    setEditingItem({
+                                        ...editingItem,
+                                        price: Number(e.target.value),
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Price"
+                            />
 
-                        <input
-                            type="text"
-                            value={editingItem.category || ""}
-                            onChange={(e) =>
-                                setEditingItem({
-                                    ...editingItem,
-                                    category: e.target.value,
-                                })
-                            }
-                            className="w-full border rounded-lg p-2 mb-3"
-                            placeholder="Category"
-                        />
+                            <input
+                                type="text"
+                                value={editingItem.category || ""}
+                                onChange={(e) =>
+                                    setEditingItem({
+                                        ...editingItem,
+                                        category: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Category"
+                            />
 
-                        <textarea
-                            value={editingItem.description || ""}
-                            onChange={(e) =>
-                                setEditingItem({
-                                    ...editingItem,
-                                    description: e.target.value,
-                                })
-                            }
-                            className="w-full border rounded-lg p-2 mb-3"
-                            rows={3}
-                            placeholder="Description"
-                        />
+                            <textarea
+                                value={editingItem.description || ""}
+                                onChange={(e) =>
+                                    setEditingItem({
+                                        ...editingItem,
+                                        description: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                rows={3}
+                                placeholder="Description"
+                            />
 
-                        <input
-                            type="text"
-                            value={editingItem.image || ""}
-                            onChange={(e) =>
-                                setEditingItem({
-                                    ...editingItem,
-                                    image: e.target.value,
-                                })
-                            }
-                            className="w-full border rounded-lg p-2 mb-3"
-                            placeholder="Image URL"
-                        />
+                            <input
+                                type="text"
+                                value={editingItem.image || ""}
+                                onChange={(e) =>
+                                    setEditingItem({
+                                        ...editingItem,
+                                        image: e.target.value,
+                                    })
+                                }
+                                className="w-full border border-stone-300 rounded-lg p-2"
+                                placeholder="Image URL"
+                            />
+                        </div>
 
-                        <div className="flex justify-end gap-3">
+                        <div className="flex justify-end gap-3 mt-6">
                             <button
                                 onClick={() => setShowEditModal(false)}
-                                className="px-4 py-2 rounded-lg border"
+                                className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 transition"
                             >
                                 Cancel
                             </button>
 
                             <button
                                 onClick={saveMenuItem}
-                                className="px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition"
+                                className="px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition font-medium"
                             >
                                 Save Changes
                             </button>

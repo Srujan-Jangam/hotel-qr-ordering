@@ -32,37 +32,54 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-stone-50">
-            <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-                <h1 className="text-3xl font-bold text-center mb-6">
-                    Admin Login
-                </h1>
+        <div className="min-h-screen flex items-center justify-center bg-stone-50 p-4">
+            <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 w-full max-w-md">
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-stone-900">
+                        Admin Login
+                    </h1>
+                    <p className="text-stone-500 mt-2 text-sm">
+                        Enter your credentials to access the dashboard
+                    </p>
+                </div>
 
-                <form onSubmit={handleLogin}>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        className="w-full border rounded-xl p-3 mb-4"
-                        value={email}
-                        onChange={(e) =>
-                            setEmail(e.target.value)
-                        }
-                    />
+                <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            className="w-full border border-stone-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+                            value={email}
+                            onChange={(e) =>
+                                setEmail(e.target.value)
+                            }
+                            required
+                        />
+                    </div>
 
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        className="w-full border rounded-xl p-3 mb-4"
-                        value={password}
-                        onChange={(e) =>
-                            setPassword(e.target.value)
-                        }
-                    />
+                    <div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            placeholder="Enter your password"
+                            className="w-full border border-stone-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+                            value={password}
+                            onChange={(e) =>
+                                setPassword(e.target.value)
+                            }
+                            required
+                        />
+                    </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-amber-500 text-white py-3 rounded-xl font-medium hover:bg-amber-600"
+                        className="w-full bg-amber-500 text-white py-3 rounded-xl font-medium hover:bg-amber-600 transition disabled:opacity-50 disabled:cursor-not-allowed mt-6"
                     >
                         {loading ? "Signing In..." : "Login"}
                     </button>
