@@ -132,6 +132,18 @@ const Menu = () => {
     });
   };
 
+  const decreaseQty = (foodId) => {
+    setCart((prev) =>
+      prev
+        .map((item) =>
+          item.id === foodId
+            ? { ...item, qty: item.qty - 1 }
+            : item
+        )
+        .filter((item) => item.qty > 0)
+    );
+  };
+
   const total = cart.reduce((sum, food) => sum + food.price * food.qty, 0);
 
   if (loading) {
@@ -318,9 +330,27 @@ const Menu = () => {
                         className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-xs font-bold">
-                            {item.qty}
-                          </span>
+                          <div className="flex items-center gap-1 bg-stone-100 rounded-full p-1">
+                            <button
+                              onClick={() => decreaseQty(item.id)}
+                              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 text-red-700 font-bold text-lg flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                              aria-label="Decrease quantity"
+                            >
+                              −
+                            </button>
+
+                            <span className="w-10 text-center text-sm font-bold text-stone-900 px-2">
+                              {item.qty}
+                            </span>
+
+                            <button
+                              onClick={() => addToCart(item)}
+                              className="w-8 h-8 rounded-full bg-green-100 hover:bg-green-200 text-green-700 font-bold text-lg flex items-center justify-center transition-all duration-200 active:scale-95"
+                              aria-label="Increase quantity"
+                            >
+                              +
+                            </button>
+                          </div>
                           <span className="text-sm text-stone-700 font-medium">
                             {item.name}
                           </span>

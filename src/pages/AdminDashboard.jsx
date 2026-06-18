@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
 
+    const [dateFilter, setDateFilter] = useState("all");
+
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -95,44 +97,79 @@ const AdminDashboard = () => {
         return date.toLocaleString([], { dateStyle: "short", timeStyle: "short" });
     };
 
+    const filterByDate = (order) => {
+        if (dateFilter === "all") return true;
+
+        if (!order.createdAt?.toDate) return true;
+
+        const orderDate = order.createdAt.toDate();
+        const now = new Date();
+
+        if (dateFilter === "today") {
+            return orderDate.toDateString() === now.toDateString();
+        }
+
+        if (dateFilter === "week") {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(now.getDate() - 7);
+
+            return orderDate >= sevenDaysAgo;
+        }
+
+        if (dateFilter === "month") {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(now.getDate() - 30);
+
+            return orderDate >= thirtyDaysAgo;
+        }
+
+        return true;
+    };
+
     const activeOrders = orders.filter(
-        (o) => o.status === "pending" || o.status === "preparing"
+        (o) =>
+            filterByDate(o) &&
+            (o.status === "pending" || o.status === "preparing")
     );
 
     const completedOrders = orders.filter(
-        (o) => o.status === "served"
+        (o) =>
+            filterByDate(o) &&
+            o.status === "served"
     );
 
-    const totalOrders = orders.length;
+    const filteredOrders = orders.filter(filterByDate);
+
+    const totalOrders = filteredOrders.length;
     const activeOrderCount = activeOrders.length;
 
-    const revenue = orders
+    const revenue = filteredOrders
         .filter((o) => ["served", "completed"].includes(o.status))
         .reduce((sum, order) => sum + (order.total || 0), 0);
 
-    const onlinePayments = orders.filter(
+    const onlinePayments = filteredOrders.filter(
         (o) => o.paymentMethod === "online"
     ).length;
 
-    const counterPayments = orders.filter(
+    const counterPayments = filteredOrders.filter(
         (o) => o.paymentMethod === "counter"
     ).length;
 
-    const pendingOrders = orders.filter(
+    const pendingOrders = filteredOrders.filter(
         (o) => o.status === "pending"
     ).length;
 
-    const preparingOrders = orders.filter(
+    const preparingOrders = filteredOrders.filter(
         (o) => o.status === "preparing"
     ).length;
 
-    const servedOrders = orders.filter(
+    const servedOrders = filteredOrders.filter(
         (o) => o.status === "served"
     ).length;
 
     const itemFrequency = {};
 
-    orders.forEach((order) => {
+    filteredOrders.forEach((order) => {
         if (!order.items) return;
 
         order.items.forEach((item) => {
@@ -156,6 +193,7 @@ const AdminDashboard = () => {
     const topSellingItems = Object.entries(itemFrequency)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 3);
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-stone-50 to-neutral-50">
@@ -192,6 +230,47 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             </header>
+
+            <div className="flex flex-col items-end mr-8">
+                <div className="relative">
+                    <select
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                        className="appearance-none bg-white border border-stone-200 rounded-xl px-4 py-2.5 pr-10 text-sm font-medium text-stone-700 shadow-sm hover:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition"
+                    >
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">Last 7 Days</option>
+                        <option value="month">Last 30 Days</option>
+                    </select>
+
+                    <svg
+                        className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                        />
+                    </svg>
+                </div>
+
+                <p className="text-xs text-stone-500 mt-1">
+                    Showing {
+                        dateFilter === "all"
+                            ? "All Orders"
+                            : dateFilter === "today"
+                                ? "Today's Orders"
+                                : dateFilter === "week"
+                                    ? "Last 7 Days"
+                                    : "Last 30 Days"
+                    }
+                </p>
+            </div>
 
             {/* Stats Grid */}
             <div className="max-w-7xl mx-auto px-6 py-8">
@@ -272,7 +351,7 @@ const AdminDashboard = () => {
                                 <div>
                                     <p className="text-sm text-green-600 font-semibold">Top Item</p>
                                     <p className="text-lg font-bold text-green-900 mt-1">
-                                        {mostOrderedItem} 
+                                        {mostOrderedItem}
                                         {highestCount > 0 && <span className="block text-sm text-green-700">({highestCount} sold)</span>}
                                     </p>
                                 </div>
@@ -345,6 +424,7 @@ const AdminDashboard = () => {
 
                     </div>
                 </div>
+
 
                 {/* Active Orders */}
                 <section className="mb-8">
