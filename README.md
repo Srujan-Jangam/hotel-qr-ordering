@@ -231,19 +231,28 @@ const firebaseConfig = {
 ### Customer Interface
 
 * Menu Page
+![Menu Page](src/assets/Screenshots/Menu.png)
 * Checkout Page
+![Checkout Page](src/assets/Screenshots/Checkout.png)
 * Order Tracking Page
+![Order Tracking Page](src/assets/Screenshots/Order_Tracking.png)
 * Receipt Page
+![Receipt Page](src/assets/Screenshots/Receipt.png)
 * My Orders Page
+![My Orders Page](src/assets/Screenshots/My_Orders.png)
 
 ### Admin Interface
 
 * Admin Login
+![Admin Login](src/assets/Screenshots/Admin_Login.png)
 * Dashboard
+![Dashboard](src/assets/Screenshots/Dashboard.png)
 * Menu Management
+![Menu Management](src/assets/Screenshots/Menu_Management.png)
 * Restaurant Settings
+![Restaurant Settings](src/assets/Screenshots/Restaurant_Settings.png)
 * QR Management
-* Analytics Dashboard
+![QR Management](src/assets/Screenshots/Qr_managament.png)
 
 ---
 
