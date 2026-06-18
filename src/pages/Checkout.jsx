@@ -142,10 +142,9 @@ const Checkout = () => {
 
       navigate(`/order/${docRef.id}`);
     } catch (err) {
-      console.error(err);
-      alert("Failed to place order");
-      setIsPlacing(false);
-    }
+  console.error("Order Error:", err);
+  alert(err.message);
+}
   };
 
   // Merger Carts if orders are same
