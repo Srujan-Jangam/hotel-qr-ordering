@@ -64,9 +64,10 @@ const AdminDashboard = () => {
                 status: newStatus,
                 statusUpdatedAt: new Date(), // Track when status was updated
             });
-        } catch (err) {
-            console.error("Failed to update status:", err);
-        }
+        } catch (error) {
+    console.error("Update Error:", error);
+    alert(error.message);
+}
     };
 
     const getStatusStyle = (status) => {
